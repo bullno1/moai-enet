@@ -719,9 +719,6 @@ static const struct luaL_Reg enet_event_funcs [] = {
 };
 
 int luaopen_enet(lua_State *l) {
-	enet_initialize();
-	atexit(enet_deinitialize);
-
 	// create metatables
 	luaL_newmetatable(l, "enet_host");
 	lua_newtable(l); // index
@@ -729,6 +726,7 @@ int luaopen_enet(lua_State *l) {
 	lua_setfield(l, -2, "__index");
 	lua_pushcfunction(l, host_gc);
 	lua_setfield(l, -2, "__gc");
+	lua_pop(l, 1);
 
 	luaL_newmetatable(l, "enet_peer");
 	lua_newtable(l);
@@ -736,6 +734,7 @@ int luaopen_enet(lua_State *l) {
 	lua_setfield(l, -2, "__index");
 	lua_pushcfunction(l, peer_tostring);
 	lua_setfield(l, -2, "__tostring");
+	lua_pop(l, 1);
 
 	// set up peer table
 	lua_newtable(l);
@@ -746,7 +745,10 @@ int luaopen_enet(lua_State *l) {
 	lua_setmetatable(l, -2);
 
 	lua_setfield(l, LUA_REGISTRYINDEX, "enet_peers");
+	lua_pop(l, 1);
 
 	luaL_register(l, "enet", enet_funcs);
-	return 1;
+	lua_pop(l, 1);
+
+	return 0;
 }
