@@ -41,17 +41,21 @@ endif()
 if(HAS_SOCKLEN_T)
     add_definitions(-DHAS_SOCKLEN_T=1)
 endif()
- 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+
+set(ENET_INCLUDES ${PROJECT_SOURCE_DIR}/include)
+
+include_directories(${ENET_INCLUDES})
  
 add_library(enet STATIC
-	callbacks.c
-	compress.c
-	host.c
-	list.c
-	packet.c
-	peer.c
-	protocol.c
-	unix.c
-	win32.c
+    callbacks.c
+    compress.c
+    host.c
+    list.c
+    packet.c
+    peer.c
+    protocol.c
+    unix.c
+    win32.c
 )
+
+target_include_directories(enet PUBLIC ${ENET_INCLUDES})
