@@ -120,44 +120,30 @@ static void push_peer(lua_State *l, ENetPeer *peer) {
 	lua_remove(l, -2); // remove enet_peers
 }
 
-static void push_event(lua_State *l, ENetEvent *event) {
-	lua_newtable(l); // event table
-
-	if (event->peer) {
-		push_peer(l, event->peer);
-		lua_setfield(l, -2, "peer");
-	}
-
+static int push_event(lua_State *l, ENetEvent *event) {
 	switch (event->type) {
 		case ENET_EVENT_TYPE_CONNECT:
-			lua_pushinteger(l, event->data);
-			lua_setfield(l, -2, "data");
-
 			lua_pushstring(l, "connect");
-			break;
-		case ENET_EVENT_TYPE_DISCONNECT:
+			push_peer(l, event->peer);
 			lua_pushinteger(l, event->data);
-			lua_setfield(l, -2, "data");
-
+			return 3;
+		case ENET_EVENT_TYPE_DISCONNECT:
 			lua_pushstring(l, "disconnect");
-			break;
+			push_peer(l, event->peer);
+			lua_pushinteger(l, event->data);
+			return 3;
 		case ENET_EVENT_TYPE_RECEIVE:
-			lua_pushlstring(l, (const char *)event->packet->data, event->packet->dataLength);
-			lua_setfield(l, -2, "data");
-
-			lua_pushinteger(l, event->channelID);
-			lua_setfield(l, -2, "channel");
-
 			lua_pushstring(l, "receive");
-
+			push_peer(l, event->peer);
+			lua_pushlstring(l, (const char *)event->packet->data, event->packet->dataLength);
+			lua_pushinteger(l, event->channelID);
 			enet_packet_destroy(event->packet);
-			break;
+			return 4;
 		case ENET_EVENT_TYPE_NONE:
-			lua_pushstring(l, "none");
-			break;
+			return 0;
 	}
 
-	lua_setfield(l, -2, "type");
+	return 0;
 }
 
 /**
@@ -279,8 +265,7 @@ static int host_service(lua_State *l) {
 	if (out == 0) return 0;
 	if (out < 0) return luaL_error(l, "Error during service");
 
-	push_event(l, &event);
-	return 1;
+	return push_event(l, &event);
 }
 
 /**
@@ -293,8 +278,7 @@ static int host_check_events(lua_State *l) {
 	if (out == 0) return 0;
 	if (out < 0) return luaL_error(l, "Error checking event");
 
-	push_event(l, &event);
-	return 1;
+	return push_event(l, &event);
 }
 
 /**
