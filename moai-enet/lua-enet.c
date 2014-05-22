@@ -369,14 +369,14 @@ static int host_socket_get_address(lua_State *l) {
 	ENetHost *host = check_host(l, 1);
 	ENetAddress address = host->address;
 
-	lua_pushfstring(l, "%d.%d.%d.%d:%d",
+	lua_pushfstring(l, "%d.%d.%d.%d",
 			((address.host) & 0xFF),
 			((address.host >> 8) & 0xFF),
 			((address.host >> 16) & 0xFF),
-			(address.host >> 24& 0xFF),
-			address.port);
+			(address.host >> 24& 0xFF));
+	lua_pushinteger(l, address.port);
 
-	return 1;
+	return 2;
 }
 static int host_total_sent_data(lua_State *l) {
 	ENetHost *host = check_host(l, 1);
