@@ -367,8 +367,7 @@ static int host_bandwidth_limit(lua_State *l) {
 
 static int host_socket_get_address(lua_State *l) {
 	ENetHost *host = check_host(l, 1);
-	ENetAddress address;
-	enet_socket_get_address (host->socket, &address);
+	ENetAddress address = host->address;
 
 	lua_pushfstring(l, "%d.%d.%d.%d:%d",
 			((address.host) & 0xFF),
